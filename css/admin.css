@@ -1,0 +1,13 @@
+body {
+    background-image: url('../image/orange.jpg');
+}
+
+nav {
+    background-color: rgba(204, 88, 0, 0.215);
+    display: flex;
+    justify-content: flex-end;
+}
+
+a {
+    color: orange;
+}

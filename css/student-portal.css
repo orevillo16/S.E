@@ -1,0 +1,13 @@
+body {
+    background-image: url('../image/sky.jpg');
+}
+
+nav {
+    background-color: rgba(0, 173, 204, 0.215);
+    display: flex;
+    justify-content: flex-end;
+}
+
+a {
+    color: aqua;
+}

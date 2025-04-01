@@ -1,0 +1,40 @@
+body {
+    background-image: url('../image/HQ.png'); 
+}
+
+nav {
+    background-color: rgba(0, 204, 105, 0.215);
+    display: flex;
+    justify-content: flex-end;
+}
+
+a, span, button {
+    color: rgb(0, 255, 136);
+}
+
+button {
+    background-color: rgba(0, 204, 105, 0.215);
+    border: none;
+    width: 40%;
+    height: 40px;
+    border-radius: 15px;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    position: relative;
+    height: 100vh
+}
+
+.box {
+    background-color: rgba(0, 255, 136, 0.053);
+    border-radius: 15px;
+    margin-top: 10%;
+    width: 80%;
+}
+.box-class {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
