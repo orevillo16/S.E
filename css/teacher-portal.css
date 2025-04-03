@@ -28,9 +28,9 @@ button {
 }
 
 .box {
-    background-color: rgba(0, 255, 136, 0.053);
+    background-color: rgba(1, 44, 24, 0.523);
     border-radius: 15px;
-    margin-top: 10%;
+    margin-top: 5%;
     width: 80%;
 }
 .box-class {
