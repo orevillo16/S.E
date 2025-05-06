@@ -1,22 +1,47 @@
 let isClassCreated = false;
 
+// function to clear the class-info container
+const clearClassInfo = () => {
+    const classInfo = document.getElementById('class-info');
+    classInfo.innerHTML = '';
+};
+
+// function to create a table header
+const createTableHeader = (headers) => {
+    const thead = document.createElement('thead');
+    const headerRow = document.createElement('tr');
+    headers.forEach(text => {
+        const th = document.createElement('th');
+        th.textContent = text;
+        headerRow.appendChild(th);
+    });
+    thead.appendChild(headerRow);
+    return thead;
+};
+
+//  function to create a message
+const createMessage = (messageText, className) => {
+    const message = document.createElement('p');
+    message.textContent = messageText;
+    message.classList.add(className);
+    return message;
+};
+
+// Create New Class
 const createNewClass = () => {
-    if (isClassCreated) return; // Prevent duplicate creation
+    if (isClassCreated) return;
     isClassCreated = true;
 
-    const classInfo = document.getElementById('class-info'); // Target the class-info container
-    classInfo.innerHTML = ''; // Clear the container to remove any existing content
+    clearClassInfo();
 
     const loggedInUser = localStorage.getItem('loggedInUser');
-    console.log('Logged-in user:', loggedInUser); // Debugging
-
     if (!loggedInUser) {
         alert('No logged-in user found! Please log in first.');
-        // Optionally redirect to login page
         window.location.href = 'login.html';
         return;
     }
 
+    const classInfo = document.getElementById('class-info');
     const container = document.createElement('div');
     const classInput = document.createElement('input');
     const subjectInput = document.createElement('input');
@@ -37,8 +62,7 @@ const createNewClass = () => {
     container.appendChild(subjectInput);
     container.appendChild(buttonContainer);
     buttonContainer.appendChild(createClassBtn);
-
-    classInfo.appendChild(container); // Append the form to the class-info container
+    classInfo.appendChild(container);
 
     createClassBtn.addEventListener('click', () => {
         const className = classInput.value.trim();
@@ -52,9 +76,7 @@ const createNewClass = () => {
         createClassBtn.disabled = true;
         createClassBtn.textContent = 'Saving...';
 
-        // Save to localStorage
         const classData = JSON.parse(localStorage.getItem('classData')) || [];
-
         const newClass = {
             class: className,
             subject: subjectName,
@@ -66,74 +88,178 @@ const createNewClass = () => {
         localStorage.setItem('classData', JSON.stringify(classData));
 
         alert('Class created successfully!');
-        classInfo.innerHTML = ''; // Clear the form after saving
-        isClassCreated = false; // Reset the flag
+        clearClassInfo();
+        isClassCreated = false;
     });
 };
 
+// Open Existing Class
 const openExistingClass = () => {
-    isClassCreated = false; // Reset the flag to allow switching back to "Create New Class"
-
-    const classInfo = document.getElementById('class-info'); // Target the class-info container
-    classInfo.innerHTML = ''; // Clear the container to remove any existing content
+    isClassCreated = false;
+    clearClassInfo();
 
     const loggedInUser = localStorage.getItem('loggedInUser');
     const classData = JSON.parse(localStorage.getItem('classData')) || [];
-
     const userClassData = classData.filter(item => item.user === loggedInUser);
 
+    const classInfo = document.getElementById('class-info');
     if (userClassData.length === 0) {
-        const message = document.createElement('p');
-        message.textContent = 'No classes found';
-        message.classList.add('message'); // Add a class for styling
-        classInfo.appendChild(message); // Append the message to the class-info container
+        const message = createMessage('No classes found', 'message');
+        classInfo.appendChild(message);
         return;
     }
 
     const table = document.createElement('table');
-    const thead = document.createElement('thead');
+    table.classList.add('class-table');
+    table.appendChild(createTableHeader(['Class / Section', 'Subject', 'Actions']));
+
     const tbody = document.createElement('tbody');
-    const headerRow = document.createElement('tr');
-    
-
-    ['Class / Section', 'Subject', 'Actions'].forEach(text => {
-        const th = document.createElement('th');
-        th.textContent = text;
-        headerRow.appendChild(th);
-    });
-
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-    table.appendChild(tbody);
-    
-    userClassData.forEach((item) => {
+    userClassData.forEach(item => {
         const row = document.createElement('tr');
         const classCell = document.createElement('td');
         const subjectCell = document.createElement('td');
-        const action = document.createElement('td');
+        const actionCell = document.createElement('td');
         const actionDiv = document.createElement('div');
-        const addClassBtn = document.createElement('button');
+        const openClassBtn = document.createElement('button');
         const deleteClassBtn = document.createElement('button');
-
-    actionDiv.classList.add('button-class'); // Add a class for styling
-    deleteClassBtn.classList.add('button-class'); // Add a class for styling
-    addClassBtn.textContent = 'Open Class';
-    deleteClassBtn.textContent = 'Delete Class';
 
         classCell.textContent = item.class;
         subjectCell.textContent = item.subject;
 
-    table.classList.add('class-table'); // Add a class for styling
+        openClassBtn.textContent = 'Open Class';
+        deleteClassBtn.textContent = 'Delete Class';
+        actionDiv.classList.add('button-class');
+        actionDiv.appendChild(openClassBtn);
+        actionDiv.appendChild(deleteClassBtn);
+        actionCell.appendChild(actionDiv);
+
+        openClassBtn.addEventListener('click', () => Gradetable(item));
+
         row.appendChild(classCell);
         row.appendChild(subjectCell);
-        row.appendChild(action); // Append the action cell to the row
-        action.appendChild(actionDiv); // Append the action div to the action cell
-        actionDiv.appendChild(addClassBtn); // Append the button to the action cell
-        actionDiv.appendChild(deleteClassBtn); // Append the button to the action cell
-
-       
+        row.appendChild(actionCell);
         tbody.appendChild(row);
     });
 
-    classInfo.appendChild(table); // Append the table to the class-info container
+    table.appendChild(tbody);
+    classInfo.appendChild(table);
+};
+
+// Grade Table
+const Gradetable = (classItem) => {
+    clearClassInfo();
+
+    const classInfo = document.getElementById('class-info');
+    const classHeaderDiv = document.createElement('div');
+    classHeaderDiv.classList.add('class-header');
+
+    const classDiv = document.createElement('div');
+    classDiv.textContent = `Class: ${classItem.class}`;
+    classDiv.classList.add('class-name');
+
+    const subjectDiv = document.createElement('div');
+    subjectDiv.textContent = `Subject: ${classItem.subject}`;
+    subjectDiv.classList.add('subject-name');
+
+    classHeaderDiv.appendChild(classDiv);
+    classHeaderDiv.appendChild(subjectDiv);
+    classInfo.appendChild(classHeaderDiv);
+
+    const table = document.createElement('table');
+    table.appendChild(createTableHeader(['Name', 'Student Number', 'Prelim', 'Midterm', 'Finals', 'Actions']));
+
+    const tbody = document.createElement('tbody');
+    classItem.students.forEach(student => {
+        const row = createStudentRow(student, tbody, classItem);
+        tbody.appendChild(row);
+    });
+
+    if (classItem.students.length === 0) {
+        const newStudent = { name: '', studentNumber: '', prelim: '', midterm: '', finals: '' };
+        const newRow = createStudentRow(newStudent, tbody, classItem);
+        tbody.appendChild(newRow);
+    }
+
+    table.appendChild(tbody);
+    classInfo.appendChild(table);
+
+    const saveBtn = document.createElement('button');
+    saveBtn.textContent = 'Save and Exit';
+    saveBtn.classList.add('save-btn');
+    saveBtn.addEventListener('click', () => saveTableData(classItem, tbody));
+    classInfo.appendChild(saveBtn);
+};
+
+// Create Student Row
+const createStudentRow = (student, tbody, classItem) => {
+    const row = document.createElement('tr');
+
+    const createCellWithInput = (value) => {
+        const cell = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.value = value || '';
+        input.classList.add('input-box');
+        cell.appendChild(input);
+        return cell;
+    };
+
+    row.appendChild(createCellWithInput(student.name));
+    row.appendChild(createCellWithInput(student.studentNumber));
+    row.appendChild(createCellWithInput(student.prelim));
+    row.appendChild(createCellWithInput(student.midterm));
+    row.appendChild(createCellWithInput(student.finals));
+
+    const actionCell = document.createElement('td');
+    const actionDiv = document.createElement('div');
+    actionDiv.classList.add('button-class');
+
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.classList.add('delete-btn');
+    deleteBtn.addEventListener('click', () => {
+        if (tbody.rows.length > 1) {
+            row.remove();
+        } else {
+            alert('Cannot delete the last remaining row.');
+        }
+    });
+
+    actionDiv.appendChild(deleteBtn);
+    actionCell.appendChild(actionDiv);
+    row.appendChild(actionCell);
+
+    return row;
+};
+
+// Save Table Data
+const saveTableData = (classItem, tbody) => {
+    const updatedStudents = [];
+    const rows = tbody.querySelectorAll('tr');
+
+    rows.forEach(row => {
+        const inputs = row.querySelectorAll('input');
+        if (inputs.length === 5) {
+            updatedStudents.push({
+                name: inputs[0].value.trim(),
+                studentNumber: inputs[1].value.trim(),
+                prelim: inputs[2].value.trim(),
+                midterm: inputs[3].value.trim(),
+                finals: inputs[4].value.trim(),
+            });
+        }
+    });
+
+    classItem.students = updatedStudents;
+
+    const classData = JSON.parse(localStorage.getItem('classData')) || [];
+    const updatedClassData = classData.map(item =>
+        item.class === classItem.class && item.subject === classItem.subject
+            ? classItem
+            : item
+    );
+
+    localStorage.setItem('classData', JSON.stringify(updatedClassData));
+    alert('Class data saved successfully!');
+    clearClassInfo();
 };
