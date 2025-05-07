@@ -19,7 +19,7 @@ const createTableHeader = (headers) => {
     return thead;
 };
 
-//  function to create a message
+// Helper function to create a message
 const createMessage = (messageText, className) => {
     const message = document.createElement('p');
     message.textContent = messageText;
@@ -214,10 +214,34 @@ const createStudentRow = (student, tbody, classItem) => {
     const actionDiv = document.createElement('div');
     actionDiv.classList.add('button-class');
 
+    // Add Button
+    const addBtn = document.createElement('button');
+    addBtn.textContent = 'Add';
+    addBtn.classList.add('add-btn');
+    addBtn.addEventListener('click', () => {
+        const newStudent = { name: '', studentNumber: '', prelim: '', midterm: '', finals: '' };
+        const newRow = createStudentRow(newStudent, tbody, classItem);
+        tbody.appendChild(newRow);
+    });
+
+    // Delete Button
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'Delete';
     deleteBtn.classList.add('delete-btn');
     deleteBtn.addEventListener('click', () => {
+        // Check if the row has data
+        const inputs = row.querySelectorAll('input');
+        const hasData = Array.from(inputs).some(input => input.value.trim() !== '');
+
+        if (hasData) {
+            // Show a confirmation dialog if the row has data
+            const confirmDelete = confirm('This row contains data. Are you sure you want to delete it?');
+            if (!confirmDelete) {
+                return; // Abort deletion if the user cancels
+            }
+        }
+
+        // Proceed with deletion
         if (tbody.rows.length > 1) {
             row.remove();
         } else {
@@ -225,6 +249,7 @@ const createStudentRow = (student, tbody, classItem) => {
         }
     });
 
+    actionDiv.appendChild(addBtn);
     actionDiv.appendChild(deleteBtn);
     actionCell.appendChild(actionDiv);
     row.appendChild(actionCell);
@@ -234,15 +259,17 @@ const createStudentRow = (student, tbody, classItem) => {
 
 // Save Table Data
 const saveTableData = (classItem, tbody) => {
-    const updatedStudents = [];
-    const rows = tbody.querySelectorAll('tr');
+    const rows = [];
+    const loggedInUser = localStorage.getItem('loggedInUser'); // Retrieve the logged-in user
 
-    rows.forEach(row => {
+    // Iterate through each row in the table body
+    const tableRows = tbody.querySelectorAll('tr');
+    tableRows.forEach(row => {
         const inputs = row.querySelectorAll('input');
-        if (inputs.length === 5) {
-            updatedStudents.push({
+        if (inputs.length === 5) { // Ensure the row has all required inputs
+            rows.push({
                 name: inputs[0].value.trim(),
-                studentNumber: inputs[1].value.trim(),
+                studentID: inputs[1].value.trim(),
                 prelim: inputs[2].value.trim(),
                 midterm: inputs[3].value.trim(),
                 finals: inputs[4].value.trim(),
@@ -250,16 +277,20 @@ const saveTableData = (classItem, tbody) => {
         }
     });
 
-    classItem.students = updatedStudents;
+    // Update the classItem with the new student data
+    classItem.students = rows;
 
+    // Retrieve and update the class data in localStorage
     const classData = JSON.parse(localStorage.getItem('classData')) || [];
     const updatedClassData = classData.map(item =>
-        item.class === classItem.class && item.subject === classItem.subject
+        item.class === classItem.class && item.subject === classItem.subject && item.user === loggedInUser
             ? classItem
             : item
     );
 
+    // Save the updated class data back to localStorage
     localStorage.setItem('classData', JSON.stringify(updatedClassData));
+
     alert('Class data saved successfully!');
-    clearClassInfo();
+    clearClassInfo(); // Clear the class info container
 };

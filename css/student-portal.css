@@ -1,5 +1,6 @@
 body {
     background-image: url('../image/sky.jpg');
+    
 }
 
 nav {
@@ -10,4 +11,41 @@ nav {
 
 a {
     color: aqua;
+}
+
+#container {
+    display: flex;
+    justify-content: center;
+    }
+
+.grades-table {
+    width: 80%;
+    border-collapse: collapse;
+    margin-top: 20px;
+    background-color: white;
+}
+
+.grades-table th, .grades-table td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+}
+
+.grades-table th {
+    background-color: rgba(0, 173, 204, 0.685);
+    color: white;
+    font-weight: bold;
+    border: 5px solid rgba(0, 0, 0, 0.973);
+    text-shadow: #333   2px 1px 1px;
+}
+
+.grades-table tr {
+    background-color: rgba(0, 173, 204, 0.215);
+    color: black;
+}
+
+.grades-table td {
+    color: #333;
+    font-size: 14px;
+    border: 5px solid rgba(0, 0, 0, 0.973);
 }

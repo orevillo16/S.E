@@ -22,8 +22,13 @@ document.addEventListener("DOMContentLoaded", function () {
 
         hashPassword(loginPassword).then(hashedLoginPassword => {
             if (user.password === hashedLoginPassword) {
-                // Store the logged-in user in localStorage
-                localStorage.setItem('loggedInUser', loginEmail);
+                // Store the logged-in user in localStorage with email, role, and studentNumber
+                const loggedInUser = {
+                    email: user.email,
+                    role: user.role,
+                    studentNumber: user.studentNumber || null
+                };
+                localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
 
                 // Redirect based on role
                 if (user.role === 'instructor') {

@@ -99,12 +99,23 @@ document.addEventListener("DOMContentLoaded", function () {
             users.push(newUser);
             localStorage.setItem('users', JSON.stringify(users));
 
+            // Save the logged-in user with email, role, and studentNumber
+            const loggedInUser = {
+                email,
+                role,
+                studentNumber: studentNumber || null
+            };
+            localStorage.setItem('loggedInUser', JSON.stringify(loggedInUser));
+
             alert('Registration successful!');
             form.reset();
             document.querySelectorAll('.select-option input[type="radio"]').forEach(radio => {
                 radio.checked = false;
             });
             dynamicInputDiv.innerHTML = '';
+
+            // Redirect to login.html
+            window.location.href = 'login.html';
         }).catch(err => {
             console.error('Error during registration:', err);
             alert('An error occurred during registration. Please try again.');
