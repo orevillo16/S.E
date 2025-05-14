@@ -26,8 +26,17 @@
                 </div>
                 
                 <div class="inner-box-form">
-                    <input type="password" id="login-password" autocomplete="off" required>
-                    <label>Password</label>
+                    <div class="container">
+                        
+                        <input type="password" id="login-password" autocomplete="off" required >
+                        <label>Password</label>
+                        <div class="password-toggle-container">
+                            <button type="button" id="toggle-password-visibility" class="password-toggle">
+                            <img id="eye-icon" src="image/eye.svg" alt="Show Password">
+                        </button>
+                        </div>
+                    </div> 
+                    
                 </div>
             
             <button type="submit"> login </button>

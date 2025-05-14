@@ -1,11 +1,22 @@
 document.addEventListener("DOMContentLoaded", function () {
     const loginForm = document.querySelector('form'); // Adjusted selector
+    const passwordInput = document.getElementById('login-password');
+    const togglePasswordButton = document.getElementById('toggle-password-visibility');
+    const eyeIcon = document.getElementById('eye-icon');
+
+    // Toggle password visibility
+    togglePasswordButton.addEventListener('click', function () {
+        const isPasswordVisible = passwordInput.type === 'text';
+        passwordInput.type = isPasswordVisible ? 'password' : 'text';
+        eyeIcon.src = isPasswordVisible ? 'image/eye.svg' : 'image/eye-off.svg';
+        eyeIcon.alt = isPasswordVisible ? 'Show Password' : 'Hide Password';
+    });
 
     loginForm.addEventListener('submit', function (e) {
         e.preventDefault();
 
         const loginEmail = document.getElementById('login-email').value.trim().toLowerCase();
-        const loginPassword = document.getElementById('login-password').value.trim();
+        const loginPassword = passwordInput.value.trim();
 
         if (!loginEmail || !loginPassword) {
             alert('Please enter both email and password!');

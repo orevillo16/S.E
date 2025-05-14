@@ -1,9 +1,32 @@
 document.addEventListener("DOMContentLoaded", function () {
+    const passwordInput = document.getElementById('register-password');
+    const confirmPasswordInput = document.getElementById('register-confirm-password');
+    const togglePasswordButtons = document.querySelectorAll('.password-toggle');
+    const form = document.querySelector('form');
     const selectOptionDiv = document.querySelector('.select-option');
     const dynamicInputDiv = document.createElement('div');
     dynamicInputDiv.id = 'dynamic-input-container';
     dynamicInputDiv.className = 'inner-box-form';
 
+    // Toggle password visibility
+    togglePasswordButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            // Find the closest container and the input field within it
+            const container = this.closest('.container');
+            const input = container.querySelector('input[type="password"], input[type="text"]');
+            const eyeIcon = this.querySelector('img');
+
+            // Toggle the input type between 'password' and 'text'
+            const isPasswordVisible = input.type === 'text';
+            input.type = isPasswordVisible ? 'password' : 'text';
+
+            // Update the eye icon
+            eyeIcon.src = isPasswordVisible ? 'image/eye.svg' : 'image/eye-off.svg';
+            eyeIcon.alt = isPasswordVisible ? 'Show Password' : 'Hide Password';
+        });
+    });
+
+    // Handle dynamic input based on role selection
     document.querySelectorAll('.select-option input[type="radio"]').forEach(radio => {
         radio.addEventListener('change', function () {
             let inputBox = document.getElementById('dynamic-input');
@@ -30,14 +53,13 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     });
 
-    const form = document.querySelector('form');
+    // Handle form submission
     form.addEventListener('submit', function (e) {
         e.preventDefault();
 
-        const inputs = document.querySelectorAll('.inner-box-form input');
-        const email = inputs[0].value.trim().toLowerCase();
-        const password = inputs[1].value.trim();
-        const confirmPassword = inputs[2].value.trim();
+        const email = form.querySelector('input[type="text"]').value.trim().toLowerCase();
+        const password = passwordInput.value.trim();
+        const confirmPassword = confirmPasswordInput.value.trim();
         const role = document.getElementById('instructor').checked ? 'instructor' :
                      document.getElementById('student').checked ? 'student' : '';
         const code = document.getElementById('dynamic-input')?.value.trim() || '';

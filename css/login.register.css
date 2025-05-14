@@ -127,3 +127,21 @@ a:hover, button:hover {
     
 }
 
+.container {
+    display: flex;
+    width: 100%;
+}
+.input-password {
+    flex: 0 0 90%;
+}
+
+.password-toggle {
+    all: unset;
+    padding-top: 10px;
+    display: hidden;
+    cursor: pointer;
+}
+.password-toggle:hover {
+    all: unset;
+    padding-top: 10px;
+}
