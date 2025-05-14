@@ -70,7 +70,10 @@ const getStudentGrades = () => {
     if (studentFound) {
         container.appendChild(table); // Append the table to the container
     } else {
-        container.textContent = 'No matching student found in the class data.';
+        const noDataMessage = document.createElement('div');
+        noDataMessage.classList.add('no-data-message');
+        noDataMessage.textContent = 'No class data found';
+        container.appendChild(noDataMessage);
     }
 };
 
