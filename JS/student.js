@@ -34,10 +34,10 @@ const getStudentGrades = () => {
     const table = document.createElement('table');
     table.classList.add('grades-table'); // Add a class for styling
 
-    // Create table header
+    // Create table header (add Average and Remarks)
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
-    ['Subject', 'Prelim', 'Midterm', 'Finals'].forEach(headerText => {
+    ['Subject', 'Prelim', 'Midterm', 'Finals', 'Average', 'Remarks'].forEach(headerText => {
         const th = document.createElement('th');
         th.textContent = headerText;
         headerRow.appendChild(th);
@@ -56,7 +56,17 @@ const getStudentGrades = () => {
             studentFound = true;
 
             const row = document.createElement('tr');
-            [classItem.subject, student.prelim, student.midterm, student.finals].forEach(text => {
+            // Calculate average and remarks if not present
+            let average = student.average;
+            let remarks = student.remarks;
+            if (average === undefined || remarks === undefined) {
+                const prelim = parseFloat(student.prelim) || 0;
+                const midterm = parseFloat(student.midterm) || 0;
+                const finals = parseFloat(student.finals) || 0;
+                average = ((prelim + midterm + finals) / 3).toFixed(2);
+                remarks = (student.prelim === '' && student.midterm === '' && student.finals === '') ? '' : (average >= 75 ? 'Passed' : 'Failed');
+            }
+            [classItem.subject, student.prelim, student.midterm, student.finals, average, remarks].forEach(text => {
                 const td = document.createElement('td');
                 td.textContent = text;
                 row.appendChild(td);

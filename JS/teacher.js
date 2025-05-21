@@ -165,8 +165,9 @@ const Gradetable = (classItem) => {
     classHeaderDiv.appendChild(subjectDiv);
     classInfo.appendChild(classHeaderDiv);
 
+    // Add Average and Remarks columns
     const table = document.createElement('table');
-    table.appendChild(createTableHeader(['Name', 'Student Number', 'Prelim', 'Midterm', 'Finals', 'Actions']));
+    table.appendChild(createTableHeader(['Name', 'Student Number', 'Prelim', 'Midterm', 'Finals', 'Average', 'Remarks', 'Actions']));
 
     const tbody = document.createElement('tbody');
     classItem.students.forEach(student => {
@@ -175,7 +176,7 @@ const Gradetable = (classItem) => {
     });
 
     if (classItem.students.length === 0) {
-        const newStudent = { name: '', studentNumber: '', prelim: '', midterm: '', finals: '' };
+        const newStudent = { name: '', studentID: '', prelim: '', midterm: '', finals: '', average: '', remarks: '' };
         const newRow = createStudentRow(newStudent, tbody, classItem);
         tbody.appendChild(newRow);
     }
@@ -190,7 +191,7 @@ const Gradetable = (classItem) => {
     classInfo.appendChild(saveBtn);
 };
 
-// Create Student Row
+// Update createStudentRow to include Average and Remarks (read-only)
 const createStudentRow = (student, tbody, classItem) => {
     const row = document.createElement('tr');
 
@@ -204,12 +205,63 @@ const createStudentRow = (student, tbody, classItem) => {
         return cell;
     };
 
-    row.appendChild(createCellWithInput(student.name));
-    row.appendChild(createCellWithInput(student.studentNumber));
-    row.appendChild(createCellWithInput(student.prelim));
-    row.appendChild(createCellWithInput(student.midterm));
-    row.appendChild(createCellWithInput(student.finals));
+    // Helper for read-only cell
+    const createReadOnlyCell = (value) => {
+        const cell = document.createElement('td');
+        cell.textContent = value || '';
+        cell.classList.add('readonly-cell');
+        return cell;
+    };
 
+    // Inputs
+    const nameCell = createCellWithInput(student.name);
+    const idCell = createCellWithInput(student.studentID);
+    const prelimCell = createCellWithInput(student.prelim);
+    const midtermCell = createCellWithInput(student.midterm);
+    const finalsCell = createCellWithInput(student.finals);
+
+    row.appendChild(nameCell);
+    row.appendChild(idCell);
+    row.appendChild(prelimCell);
+    row.appendChild(midtermCell);
+    row.appendChild(finalsCell);
+
+    // Calculate average and remarks
+    const calcAverageAndRemarks = () => {
+        const prelim = parseFloat(prelimCell.querySelector('input').value) || 0;
+        const midterm = parseFloat(midtermCell.querySelector('input').value) || 0;
+        const finals = parseFloat(finalsCell.querySelector('input').value) || 0;
+        const avg = ((prelim + midterm + finals) / 3).toFixed(2);
+        let remarks = '';
+        if (prelimCell.querySelector('input').value === '' && midtermCell.querySelector('input').value === '' && finalsCell.querySelector('input').value === '') {
+            return { avg: '', remarks: '' };
+        }
+        remarks = avg >= 75 ? 'Passed' : 'Failed';
+        return { avg, remarks };
+    };
+
+    // Average and Remarks cells
+    const averageCell = createReadOnlyCell('');
+    const remarksCell = createReadOnlyCell('');
+
+    // Update average and remarks when grades change
+    const updateAverageAndRemarks = () => {
+        const { avg, remarks } = calcAverageAndRemarks();
+        averageCell.textContent = avg;
+        remarksCell.textContent = remarks;
+    };
+
+    [prelimCell, midtermCell, finalsCell].forEach(cell => {
+        cell.querySelector('input').addEventListener('input', updateAverageAndRemarks);
+    });
+
+    // Initialize values
+    updateAverageAndRemarks();
+
+    row.appendChild(averageCell);
+    row.appendChild(remarksCell);
+
+    // Actions
     const actionCell = document.createElement('td');
     const actionDiv = document.createElement('div');
     actionDiv.classList.add('button-class');
@@ -219,7 +271,7 @@ const createStudentRow = (student, tbody, classItem) => {
     addBtn.textContent = 'Add';
     addBtn.classList.add('add-btn');
     addBtn.addEventListener('click', () => {
-        const newStudent = { name: '', studentNumber: '', prelim: '', midterm: '', finals: '' };
+        const newStudent = { name: '', studentID: '', prelim: '', midterm: '', finals: '', average: '', remarks: '' };
         const newRow = createStudentRow(newStudent, tbody, classItem);
         tbody.appendChild(newRow);
     });
@@ -229,19 +281,12 @@ const createStudentRow = (student, tbody, classItem) => {
     deleteBtn.textContent = 'Delete';
     deleteBtn.classList.add('delete-btn');
     deleteBtn.addEventListener('click', () => {
-        // Check if the row has data
         const inputs = row.querySelectorAll('input');
         const hasData = Array.from(inputs).some(input => input.value.trim() !== '');
-
         if (hasData) {
-            // Show a confirmation dialog if the row has data
             const confirmDelete = confirm('This row contains data. Are you sure you want to delete it?');
-            if (!confirmDelete) {
-                return; // Abort deletion if the user cancels
-            }
+            if (!confirmDelete) return;
         }
-
-        // Proceed with deletion
         if (tbody.rows.length > 1) {
             row.remove();
         } else {
@@ -257,30 +302,34 @@ const createStudentRow = (student, tbody, classItem) => {
     return row;
 };
 
-// Save Table Data
+// Update saveTableData to include average and remarks
 const saveTableData = (classItem, tbody) => {
     const rows = [];
-    const loggedInUser = localStorage.getItem('loggedInUser'); // Retrieve the logged-in user
+    const loggedInUser = localStorage.getItem('loggedInUser');
 
-    // Iterate through each row in the table body
     const tableRows = tbody.querySelectorAll('tr');
     tableRows.forEach(row => {
         const inputs = row.querySelectorAll('input');
-        if (inputs.length === 5) { // Ensure the row has all required inputs
+        if (inputs.length === 5) {
+            const prelim = parseFloat(inputs[2].value.trim()) || 0;
+            const midterm = parseFloat(inputs[3].value.trim()) || 0;
+            const finals = parseFloat(inputs[4].value.trim()) || 0;
+            const avg = ((prelim + midterm + finals) / 3).toFixed(2);
+            const remarks = (inputs[2].value === '' && inputs[3].value === '' && inputs[4].value === '') ? '' : (avg >= 75 ? 'Passed' : 'Failed');
             rows.push({
                 name: inputs[0].value.trim(),
                 studentID: inputs[1].value.trim(),
                 prelim: inputs[2].value.trim(),
                 midterm: inputs[3].value.trim(),
                 finals: inputs[4].value.trim(),
+                average: avg,
+                remarks: remarks,
             });
         }
     });
 
-    // Update the classItem with the new student data
     classItem.students = rows;
 
-    // Retrieve and update the class data in localStorage
     const classData = JSON.parse(localStorage.getItem('classData')) || [];
     const updatedClassData = classData.map(item =>
         item.class === classItem.class && item.subject === classItem.subject && item.user === loggedInUser
@@ -288,9 +337,8 @@ const saveTableData = (classItem, tbody) => {
             : item
     );
 
-    // Save the updated class data back to localStorage
     localStorage.setItem('classData', JSON.stringify(updatedClassData));
 
     alert('Class data saved successfully!');
-    clearClassInfo(); // Clear the class info container
+    clearClassInfo();
 };
